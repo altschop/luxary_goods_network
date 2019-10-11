@@ -4,6 +4,7 @@ from models.sale import Sale
 import utils
 import datetime
 import json
+from selenium import webdriver
 
 
 class WatchLink:
@@ -33,7 +34,13 @@ watches = [WatchLink(utils.BRAND_ROLEX, utils.MODEL_DATEJUST, utils.VERSION_1601
            WatchLink(utils.BRAND_ROLEX, utils.MODEL_GMT_MASTER_TWO, utils.VERSION_116710LN,
                      utils.LINK_GMT_MASTER_116710LN),
            WatchLink(utils.BRAND_ROLEX, utils.MODEL_SUBMARINER, utils.VERSION_116610LV,
-                     utils.LINK_SUBMARINER_116610LV)
+                     utils.LINK_SUBMARINER_116610LV),
+           WatchLink(utils.BRAND_ROLEX, utils.MODEL_GMT_MASTER_TWO, utils.VERSION_126711CHNR,
+                     utils.LINK_GMT_MASTER_126711CHNR),
+           WatchLink(utils.BRAND_ROLEX, utils.MODEL_DATEJUST, utils.VERSION_DIAMOND_16013,
+                     utils.LINK_DATEJUST_DIAMOND_DIAL_16013),
+           WatchLink(utils.BRAND_ROLEX, utils.MODEL_SUBMARINER, utils.VERSION_16613,
+                     utils.LINK_SUBMARINER_16613),
            ]
 
 
@@ -57,17 +64,31 @@ def retrieveSales(watches):
         print(watch)
         print(response)
 
+        count = 0
         for sale in response:
             temp = Sale(watch.brand, watch.model, watch.version, sale["amount"],
                         sale["createdAt"], utils.CURRENCY_USD)
             print(temp)
             sales.append(temp)
+            count += 1
+        print(str(count))
 
     return sales
 
 
+def selScrape():
+    link = "https://stockx.com/search/watches?s=rolex"
+    browser = webdriver.Chrome(executable_path="./chromedriver.exe")
+    browser.get(link)
+
+    for watch in browser.find_elements_by_class_name("browse-tile"):
+        print(watch)
+
+
 def main():
-    sales = retrieveSales(watches)
+    selScrape()
+    # sales = retrieveSales(watches)
+    # print(len(sales))
 
 
 main()
