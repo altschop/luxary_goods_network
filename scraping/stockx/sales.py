@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 from models.sale import Sale
 import utils
 import datetime
@@ -75,20 +74,25 @@ def retrieveSales(watches):
 
     return sales
 
+def salesToCSV(sales):
+    #TODO write all of the sale data into a CSV
+    return None
+
 
 def selScrape():
     link = "https://stockx.com/search/watches?s=rolex"
-    browser = webdriver.Chrome(executable_path="./chromedriver.exe")
+    browser = webdriver.Chrome(executable_path="./chromedriver")
     browser.get(link)
 
+    print('starting to look at watches')
     for watch in browser.find_elements_by_class_name("browse-tile"):
         print(watch)
 
 
 def main():
-    selScrape()
-    # sales = retrieveSales(watches)
-    # print(len(sales))
-
-
-main()
+    #selScrape()
+    sales = retrieveSales(watches)
+    print(sales)
+    print(len(sales))
+if __name__ == '__main__':
+    main()

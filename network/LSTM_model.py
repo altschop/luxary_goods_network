@@ -8,7 +8,7 @@ import yfinance as fix
 fix.pdr_override()
 
 start = "2003-01-01"
-end = "2018-01-01"
+end = "2019-09-09"
 
 hist.get_stock_data("AAPL", start_date=start, end_date=end)
 process = DataProcessing("stock_prices.csv", 0.9)

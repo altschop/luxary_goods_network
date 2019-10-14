@@ -76,5 +76,5 @@ def scrapeHome():
 def main():
     watch_objects = scrapeHome()
 
-
-main()
+if __name__ == '__main__':
+    main()
