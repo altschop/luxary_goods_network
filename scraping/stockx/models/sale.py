@@ -11,3 +11,7 @@ class Sale:
         return "Watch Brand: " + self.brand + " Model: " + self.model + \
                " Version: " + str(self.version) + " Price: " + str(self.price) + \
                " Currency: " + self.currency
+
+    def getInformation(self):
+        return [self.brand, self.model, self.version,
+                self.price, self.date, self.currency]
