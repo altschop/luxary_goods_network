@@ -75,13 +75,12 @@ def retrieveSales(watches):
 
     return sales
 
-def salesToCSV(sales):
+def salesToCSV(sales, cols):
     with open("sales.csv", mode="w") as sales_file:
         writer = csv.writer(sales_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["Brand", "Model", "Version",
-                         "Price", "Date", "Currency"])
+        writer.writerow(cols)
         for sale in sales:
-            writer.writerow(sale.getInformation())
+            writer.writerow(sale.getInformation(cols))
 
 def selScrape():
     link = "https://stockx.com/search/watches?s=rolex"
@@ -96,8 +95,11 @@ def selScrape():
 def main():
     #selScrape()
     sales = retrieveSales(watches)
-    salesToCSV(sales)
-    print(sales)
-    print(len(sales))
+    # csvCols = ["Brand", "Model", "Version", "Price", "Date", "Currency"]
+    csvCols = ["Date", "Price"]
+    salesToCSV(sales, csvCols)
+    # print(sales)
+    # print(len(sales))
+
 if __name__ == '__main__':
     main()
