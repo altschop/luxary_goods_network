@@ -2,3 +2,5 @@
 *env*
 *.idea*
 */MNIST_data
+*.pyc
+*.csv
