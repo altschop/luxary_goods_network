@@ -6,6 +6,7 @@ MODEL_DATEJUST = "Datejust"
 MODEL_YACHT_MASTER_TWO = "Yacht-Master II"
 MODEL_GMT_MASTER_TWO = "GMT-Master II"
 MODEL_SUBMARINER = "Submariner"
+DATA_DIR = './data'
 
 # versions
 VERSION_16013 = "16013"

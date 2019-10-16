@@ -1,11 +1,15 @@
+import os
 import requests
-from models.sale import Sale
+import json
+import csv
 import utils
 from operator import attrgetter
-import json
 from selenium import webdriver
-import csv
+from collections import defaultdict
+from models.sale import Sale
 
+ALL_COLS = ["Brand", "Model", "Version", "Price", "Date", "Datetime", "Currency"]
+CSV_COLS = ["Date", "Price"]
 
 class WatchLink:
     def __init__(self, brand, model, version, link):
@@ -75,8 +79,8 @@ def retrieveSales(watches):
 
     return sales
 
-def salesToCSV(sales, cols):
-    with open("sales.csv", mode="w") as sales_file:
+def salesToCSV(model, sales, cols):
+    with open("{}/{}_sales.csv".format(utils.DATA_DIR, model), mode="w") as sales_file:
         writer = csv.writer(sales_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(cols)
         for sale in sales:
@@ -93,14 +97,17 @@ def selScrape():
 
 
 def main():
-    #selScrape()
+    try:
+        os.makedirs(utils.DATA_DIR)
+    except:
+        pass
     sales = retrieveSales(watches)
+    modelToSales = defaultdict(list)
+    for sale in sales:
+        modelToSales[sale.model].append(sale)
     sales.sort(key=attrgetter('datetime'))
-    # csvCols = ["Brand", "Model", "Version", "Price", "Date", "Currency"]
-    csvCols = ["Date", "Price"]
-    salesToCSV(sales, csvCols)
-    # print(sales)
-    # print(len(sales))
+    for model, sales in modelToSales.items():
+        salesToCSV(model, sales, CSV_COLS)
 
 if __name__ == '__main__':
     main()
