@@ -1,7 +1,7 @@
 import requests
 from models.sale import Sale
 import utils
-import datetime
+from operator import attrgetter
 import json
 from selenium import webdriver
 import csv
@@ -95,6 +95,7 @@ def selScrape():
 def main():
     #selScrape()
     sales = retrieveSales(watches)
+    sales.sort(key=attrgetter('datetime'))
     # csvCols = ["Brand", "Model", "Version", "Price", "Date", "Currency"]
     csvCols = ["Date", "Price"]
     salesToCSV(sales, csvCols)

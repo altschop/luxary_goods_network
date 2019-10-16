@@ -1,4 +1,5 @@
 
+import datetime
 from operator import attrgetter
 
 class Sale:
@@ -8,6 +9,7 @@ class Sale:
         self.version = version
         self.price = price
         self.date = date.split('T')[0]
+        self.datetime = datetime.datetime.fromisoformat(date)
         self.currency = currency
 
     def __str__(self):

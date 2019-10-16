@@ -3,4 +3,3 @@
 *.idea*
 */MNIST_data
 *.pyc
-*.csv
