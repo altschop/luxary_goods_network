@@ -95,17 +95,26 @@ def selScrape():
     for watch in browser.find_elements_by_class_name("browse-tile"):
         print(watch)
 
-
-def main():
+def mkdir(pathToNewDir):
     try:
-        os.makedirs(utils.DATA_DIR)
+        os.makedirs(pathToNewDir)
     except:
         pass
+
+def main():
+    # Make directory to store the csv files
+    mkdir(utils.DATA_DIR)
+
+    # Get and sort sales by datetime
     sales = retrieveSales(watches)
+    sales.sort(key=attrgetter('datetime'))
+
+    # Map each model to a list corresponding to its sales
     modelToSales = defaultdict(list)
     for sale in sales:
         modelToSales[sale.model].append(sale)
-    sales.sort(key=attrgetter('datetime'))
+
+    # Create a csv for each model
     for model, sales in modelToSales.items():
         salesToCSV(model, sales, CSV_COLS)
 
