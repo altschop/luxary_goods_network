@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import pandas
 import yfinance as fix
+import matplotlib.pyplot as pyplot
 
 from preprocessing import DataProcessing
 
@@ -28,19 +29,25 @@ def main():
     model.add(KL.Dense(1, activation=tf.nn.relu))
 
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(X_train, Y_train, epochs=50)
+    history = model.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=50, verbose=0)
     print(model.evaluate(X_test, Y_test))
 
     data = pandas.read_csv('sales_with_header.csv', sep=',').sample(n=10)
-    stock = data["Price"]
-    X_predict = np.array(stock).reshape((1, 10, 1)) / 200
-    print(model.predict(X_predict) * 200)
+    prices = data["Price"]
+    X_predict = np.array(prices).reshape((1, 10, 1)) / 200
+    print("Predictions" + str(model.predict(X_predict) * 200))
 
     # If instead of a full backtest, you just want to see how accurate the model is for a particular prediction, run this:
     # data = pdr.get_data_yahoo("AAPL", "2017-12-19", "2018-01-03")
     # stock = data["Adj Close"]
     # X_predict = np.array(stock).reshape((1, 10)) / 200
     # print(model.predict(X_predict)*200)
+
+    pyplot.title('Loss / Mean Squared Error')
+    pyplot.plot(history.history['loss'], label='train')
+    pyplot.plot(history.history['val_loss'], label='test')
+    pyplot.legend()
+    pyplot.show()
 
 if __name__ == '__main__':
     main()
