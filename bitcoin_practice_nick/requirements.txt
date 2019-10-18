@@ -1,0 +1,7 @@
+blockchain
+requests
+textblob
+tweepy
+beautifulsoup4
+selenium
+
