@@ -1,7 +1,8 @@
-blockchain
 requests
 textblob
 tweepy
 beautifulsoup4
 selenium
-
+praw
+Pillow
+google_images_download

@@ -1,6 +1,6 @@
 from selenium import webdriver
 import string
-from models.shoe_info import ShoeInfo
+from twitter.solelink_info import ShoeInfo
 
 
 class ShoeInfoScraper:
@@ -22,6 +22,7 @@ class ShoeInfoScraper:
                 # strips punctuation off of shoe name
                 shoe_info = ShoeInfo(contents[0].translate(str.maketrans('', '', string.punctuation)), contents[1])
                 shoe_infos.append(shoe_info)
+                print(shoe_info.name)
 
                 if shoe_info.name == "Nike Air VaporMax 97 Japan" and shoe_info.release_date == "03-09-2018":
                     browser.close()

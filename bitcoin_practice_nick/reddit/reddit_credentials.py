@@ -1,0 +1,5 @@
+client_id = 'Atdkr4bcrbZ8xA'
+client_secret = 'Nw5FytaHltdfWQD9S0HNVwKfzqY'
+user_agent = 'sentiment'
+username = 'nabishop'
+password = 'Mufinman1!'

@@ -2,7 +2,7 @@ import tweepy
 import re
 from tweepy import OAuthHandler
 from textblob import TextBlob
-from models.analyzed_tweet_query import AnalyzedTweets
+from twitter.analyzed_tweet_query import AnalyzedTweets
 
 
 class TwitterClient:
