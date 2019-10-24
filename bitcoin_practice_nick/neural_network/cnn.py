@@ -80,21 +80,21 @@ class CNN:
         plt.legend(loc='lower right')
 
         test_loss, test_acc = model.evaluate(test_x, test_y, verbose=2)
-        print(test_loss)
-        print(test_acc)
+        print("Test loss: " + str(test_loss))
+        print("Test accuracy: " + str(test_acc))
 
     def create_model(self):
         layers = tf.keras.layers
 
         model = tf.keras.models.Sequential()
         print(self.imageSize)
-        model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
+        model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
+        model.add(layers.MaxPooling2D((3, 3)))
+        model.add(layers.Conv2D(128, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D((2, 2)))
-        model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D((2, 2)))
-        model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+        model.add(layers.Conv2D(128, (3, 3), activation='relu'))
         model.add(layers.Flatten())
-        model.add(layers.Dense(64, activation='relu'))
+        model.add(layers.Dense(128, activation='relu'))
         model.add(layers.Dense(len(self.labels), activation='softmax'))
         model.summary()
         model.compile(optimizer='adam',

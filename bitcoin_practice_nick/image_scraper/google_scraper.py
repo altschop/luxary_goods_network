@@ -60,6 +60,7 @@ class GoogleScraper:
 
         for cnt in range(count):
             if cnt >= len(elements):
+                self.move_random_images_to_test(query, train_path)
                 return
 
             src = elements[cnt].get_attribute('src')

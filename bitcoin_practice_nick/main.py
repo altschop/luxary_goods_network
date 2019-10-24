@@ -3,11 +3,12 @@ from solelinks.solelink_info_scraper import ShoeInfoScraper
 from image_scraper.google_scraper import GoogleScraper
 from neural_network.cnn import CNN
 from os import listdir
+import shutil
 
 
 def getTwitterAnalysisMap():
     shoe_info_scraper = ShoeInfoScraper()
-    shoes = shoe_info_scraper.getShoeInfos()
+    shoes = shoe_info_scraper.getShoeInfos(0)
 
     twitter_client = TwitterClient()
 
@@ -20,15 +21,19 @@ def getTwitterAnalysisMap():
     return shoe_analysis_map
 
 
-def get_and_collect_shoes():
+def get_and_collect_shoes(num_shoes):
+    shutil.rmtree("./train_data")
+    shutil.rmtree("./test_data")
+    shutil.rmtree("./npy_data")
+
     shoe_info_scraper = ShoeInfoScraper()
-    shoes = shoe_info_scraper.getShoeInfos()
+    shoes = shoe_info_scraper.getShoeInfos(num_shoes)
     shoe_names = [shoe.name for shoe in shoes]
     print(len(shoe_names))
     print(shoe_names)
 
     image_scraper = GoogleScraper()
-    image_scraper.scrape_images(shoe_names)
+    image_scraper.scrape_images(shoe_names, 200)
     return shoe_names
 
 
@@ -38,8 +43,9 @@ def run_network(shoe_names):
 
 
 def main():
-    # shoe_names = get_and_collect_shoes()
+    # shoe_names = get_and_collect_shoes(100)
     shoe_names = get_current_shoes_loaded()
+    print(len(shoe_names))
     run_network(shoe_names)
 
 

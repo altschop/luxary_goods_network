@@ -7,7 +7,7 @@ class ShoeInfoScraper:
     def __init__(self):
         self.shoes = []
 
-    def getShoeInfos(self):
+    def getShoeInfos(self, num_shoes):
         browser = webdriver.Chrome(executable_path="./chromedriver.exe")
         browser.maximize_window()
 
@@ -16,9 +16,9 @@ class ShoeInfoScraper:
 
         shoe_infos = []
         found = browser.find_elements_by_class_name("col-3")
-        while len(found) > 0 and len(shoe_infos) < 20:
+        while len(found) > 0 and len(shoe_infos) < num_shoes:
             for shoe in found:
-                if len(shoe_infos) > 20:
+                if len(shoe_infos) >= num_shoes:
                     browser.close()
                     return shoe_infos
 
