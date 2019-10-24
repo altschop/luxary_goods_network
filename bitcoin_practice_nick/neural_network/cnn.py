@@ -83,13 +83,6 @@ class CNN:
         print(test_loss)
         print(test_acc)
 
-        # Loss, Accuracy, Gradients, Weights, Activations, Sparsity.
-        # model = tfl.DNN(network, tensorboard_verbose=3)
-        X, Y, test_x, test_y = self.reshape_images()
-        # model.fit({'input': X}, {'targets': Y}, n_epoch=100,
-        # validation_set=({'input': test_x}, {'targets': test_y}), snapshot_step=50, show_metric=True,
-        # run_id="shoe_classifier")
-
     def create_model(self):
         layers = tf.keras.layers
 
@@ -109,39 +102,6 @@ class CNN:
                       metrics=['accuracy'])
 
         return model
-
-        core = tfl.layers.core
-        conv = tfl.layers.conv
-
-        num_filters = 32
-        filter_size = 5
-        dropout_rate = 0.8
-        learning_rate = 1e-3
-
-        print(self.imageSize[0])
-        print(self.imageSize[1])
-        # color channel is 1 bc gray scale, height x width
-        network = core.input_data(shape=[None, self.imageSize[0], self.imageSize[1], 1], name='input')
-        # create image layers, negatives -> zero
-        network = conv.conv_2d(network, num_filters, filter_size, activation="relu")
-        # pool layers together
-        network = conv.max_pool_2d(network, filter_size)
-
-        # create image layers, negatives -> zero
-        network = conv.conv_2d(network, num_filters, filter_size, activation="relu")
-        # pool layers together
-        network = conv.max_pool_2d(network, filter_size)
-
-        # create image layers, negatives -> zero
-        network = conv.conv_2d(network, num_filters, filter_size, activation="relu")
-        # pool layers together
-        network = conv.max_pool_2d(network, filter_size)
-
-        network = core.dropout(network, dropout_rate)
-        network = core.fully_connected(network, 2, activation="softmax")
-        network = tfl.layers.estimator.regression(network, optimizer="adam", learning_rate=learning_rate,
-                                                  loss="categorical_crossentropy", name="targets")
-        return network
 
     def reshape_images(self):
         # training input tensor
