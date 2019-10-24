@@ -1,13 +1,14 @@
 from twitter.twitter_client import TwitterClient
 from solelinks.solelink_info_scraper import ShoeInfoScraper
 from image_scraper.google_scraper import GoogleScraper
+from neural_network.cnn import CNN
+from os import listdir
 
 
 def getTwitterAnalysisMap():
     shoe_info_scraper = ShoeInfoScraper()
     shoes = shoe_info_scraper.getShoeInfos()
 
-    return None
     twitter_client = TwitterClient()
 
     shoe_analysis_map = {}
@@ -19,7 +20,7 @@ def getTwitterAnalysisMap():
     return shoe_analysis_map
 
 
-def main():
+def get_and_collect_shoes():
     shoe_info_scraper = ShoeInfoScraper()
     shoes = shoe_info_scraper.getShoeInfos()
     shoe_names = [shoe.name for shoe in shoes]
@@ -28,6 +29,27 @@ def main():
 
     image_scraper = GoogleScraper()
     image_scraper.scrape_images(shoe_names)
+    return shoe_names
+
+
+def run_network(shoe_names):
+    network = CNN(shoe_names)
+    network.run_network()
+
+
+def main():
+    # shoe_names = get_and_collect_shoes()
+    shoe_names = get_current_shoes_loaded()
+    run_network(shoe_names)
+
+
+def get_current_shoes_loaded():
+    shoe_names = []
+    for filename in listdir("./train_data"):
+        print(filename)
+        shoe_names.append(filename)
+
+    return shoe_names
 
 
 if __name__ == '__main__':

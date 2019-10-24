@@ -18,6 +18,10 @@ class ShoeInfoScraper:
         found = browser.find_elements_by_class_name("col-3")
         while len(found) > 0 and len(shoe_infos) < 20:
             for shoe in found:
+                if len(shoe_infos) > 20:
+                    browser.close()
+                    return shoe_infos
+
                 contents = shoe.text.split("\n")
                 # strips punctuation off of shoe name
                 name = contents[0].translate(str.maketrans('', '', string.punctuation))

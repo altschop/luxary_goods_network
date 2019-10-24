@@ -11,9 +11,22 @@ import random
 
 
 class GoogleScraper:
-    def __init__(self, trainPerent=0.2):
+    # percent_test is the percentage of results for each query that will be used for testing data
+    def __init__(self, percent_test=0.2):
         self.link = "https://www.google.com/imghp?hl=en"
-        self.trainPercent = trainPerent
+        self.percent_test = percent_test
+        self.train_data_dir = "/train_data/"
+        self.test_data_dir = "/test_data/"
+
+        try:
+            os.mkdir(os.getcwd() + self.train_data_dir)
+        except OSError:
+            print("Could not make training directory")  # do nothing
+
+        try:
+            os.mkdir(os.getcwd() + self.test_data_dir)
+        except OSError:
+            print("Could not make testing directory")  # do nothing
 
     def move_random_images_to_test(self, query, train_path):
         # randomly pick some of them and move them to testing data
@@ -28,18 +41,18 @@ class GoogleScraper:
         except FileNotFoundError:
             return
 
-        numToPick = int(len(filenames) * self.trainPercent)
+        numToPick = int(len(filenames) * self.percent_test)
         random.shuffle(filenames)
         numPicked = 0
 
         while numPicked < numToPick:
             name = filenames[numPicked]
-            shutil.move("./train_data/" + query + "/" + name, "./test_data/" + query + "/" + name)
+            shutil.move("." + self.train_data_dir + query + "/" + name, "." + self.test_data_dir + query + "/" + name)
             numPicked += 1
 
     def download_images(self, query, elements, count):
         print(query)
-        train_path = os.getcwd() + "/train_data/" + query
+        train_path = os.getcwd() + self.train_data_dir + query
         try:
             os.mkdir(train_path)
         except OSError:
@@ -62,7 +75,7 @@ class GoogleScraper:
                 img = Image.open(filename)
                 img.save(filename)
                 img.close()  # reload is necessary in my case
-                shutil.move("./" + filename, "./train_data/" + query + "/" + filename)
+                shutil.move("./" + filename, "." + self.train_data_dir + query + "/" + filename)
             except OSError:
                 os.remove(filename)
 
