@@ -7,21 +7,24 @@ from PIL import Image
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from neural_network.image_processor import label_brand, known_brands
 
 
 class CNN:
     def __init__(self, labels, image_size=120):
         self.labels = labels
         self.imageSize = (image_size, image_size)
-        print(self.imageSize)
+        self.num_brands = 0
+
         self.train_data = []
         self.test_data = []
+
         self.train_data_dir = "./test_data/"
         self.test_data_dir = "./test_data/"
 
-        test_path = os.getcwd() + "/npy_data/"
+        data_path = os.getcwd() + "/npy_data/"
         try:
-            os.mkdir(test_path)
+            os.mkdir(data_path)
         except OSError:
             print("Could not create npy_data folder")  # do nothing
 
@@ -38,7 +41,13 @@ class CNN:
         # return [1 if spot.find(label) != -1 else 0 for spot in self.labels]
 
     def create_training_data(self):
+        seen_brands = []
         for query in self.labels:
+            brand = label_brand(query)
+            if brand not in seen_brands:
+                seen_brands.append(brand)
+                self.num_brands += 1
+
             path = self.train_data_dir + query
             filenames = listdir(path)
             for filename in filenames:
@@ -46,22 +55,22 @@ class CNN:
                 img = Image.open(path + "/" + filename)
                 img = img.convert("L")  # grayscale
                 img = img.resize(self.imageSize, Image.ANTIALIAS)
-                self.train_data.append([np.array(img), label])
+                self.train_data.append([np.array(img), label, brand])
 
         np.random.shuffle(self.train_data)
         np.save("./npy_data/train_whole_data.npy", self.train_data)
 
     def create_testing_data(self):
         for query in self.labels:
+            brand = label_brand(query)
             path = self.test_data_dir + query
             filenames = listdir(path)
             for filename in filenames:
                 label = self.labelImage(filename)
-                test_num = filename.split("_")[1]
                 img = Image.open(path + "/" + filename)
                 img = img.convert("L")  # grayscale
                 img = img.resize(self.imageSize, Image.ANTIALIAS)
-                self.test_data.append([np.array(img), label])
+                self.test_data.append([np.array(img), label, brand])
 
         np.random.shuffle(self.test_data)
         np.save("./npy_data/test_whole_data.npy", self.test_data)
@@ -90,11 +99,27 @@ class CNN:
         print(self.imageSize)
         model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
         model.add(layers.MaxPooling2D((3, 3)))
+        model.add(layers.BatchNormalization())
+
+        model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+        model.add(layers.BatchNormalization())
+        model.add(layers.MaxPooling2D((2, 2)))
+
+        model.add(layers.Dropout(0.2))
+        model.add(layers.Dense(self.num_brands, activation='softmax'))
+
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D((2, 2)))
+        model.add(layers.BatchNormalization())
+
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+        model.add(layers.MaxPooling2D((2, 2)))
+        model.add(layers.BatchNormalization())
+
         model.add(layers.Flatten())
         model.add(layers.Dense(128, activation='relu'))
+        model.add(layers.Dropout(0.2))
+
         model.add(layers.Dense(len(self.labels), activation='softmax'))
         model.summary()
         model.compile(optimizer='adam',

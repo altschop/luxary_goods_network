@@ -2,6 +2,7 @@ from twitter.twitter_client import TwitterClient
 from solelinks.solelink_info_scraper import ShoeInfoScraper
 from image_scraper.google_scraper import GoogleScraper
 from neural_network.cnn import CNN
+from neural_network.image_processor import *
 from os import listdir
 import shutil
 
@@ -45,7 +46,7 @@ def run_network(shoe_names):
 def main():
     # shoe_names = get_and_collect_shoes(100)
     shoe_names = get_current_shoes_loaded()
-    print(len(shoe_names))
+    # print(len(shoe_names))
     run_network(shoe_names)
 
 
