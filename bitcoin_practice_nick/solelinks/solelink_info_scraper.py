@@ -7,7 +7,7 @@ class ShoeInfoScraper:
     def __init__(self):
         self.shoes = []
 
-    def getShoeInfos(self, num_shoes):
+    def get_shoe_infos(self, num_shoes):
         browser = webdriver.Chrome(executable_path="./chromedriver.exe")
         browser.maximize_window()
 

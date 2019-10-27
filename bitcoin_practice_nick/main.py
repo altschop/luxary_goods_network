@@ -7,7 +7,7 @@ from os import listdir
 import shutil
 
 
-def getTwitterAnalysisMap():
+def get_twitter_analysis_map():
     shoe_info_scraper = ShoeInfoScraper()
     shoes = shoe_info_scraper.getShoeInfos(0)
 
@@ -28,7 +28,7 @@ def get_and_collect_shoes(num_shoes):
     shutil.rmtree("./npy_data")
 
     shoe_info_scraper = ShoeInfoScraper()
-    shoes = shoe_info_scraper.getShoeInfos(num_shoes)
+    shoes = shoe_info_scraper.get_shoe_infos(num_shoes)
     shoe_names = [shoe.name for shoe in shoes]
     print(len(shoe_names))
     print(shoe_names)

@@ -40,6 +40,13 @@ class CNN:
         return -1
         # return [1 if spot.find(label) != -1 else 0 for spot in self.labels]
 
+    def create_np_info(self, filename, path, brand):
+        label = self.labelImage(filename)
+        img = Image.open(path + "/" + filename)
+        img = img.convert("L")  # grayscale
+        img = img.resize(self.imageSize, Image.ANTIALIAS)
+        return [np.array(img), label, brand]
+
     def create_training_data(self):
         seen_brands = []
         for query in self.labels:
@@ -49,13 +56,8 @@ class CNN:
                 self.num_brands += 1
 
             path = self.train_data_dir + query
-            filenames = listdir(path)
-            for filename in filenames:
-                label = self.labelImage(filename)
-                img = Image.open(path + "/" + filename)
-                img = img.convert("L")  # grayscale
-                img = img.resize(self.imageSize, Image.ANTIALIAS)
-                self.train_data.append([np.array(img), label, brand])
+            for filename in listdir(path):
+                self.train_data.append(self.create_np_info(filename, path, brand))
 
         np.random.shuffle(self.train_data)
         np.save("./npy_data/train_whole_data.npy", self.train_data)
@@ -64,22 +66,17 @@ class CNN:
         for query in self.labels:
             brand = label_brand(query)
             path = self.test_data_dir + query
-            filenames = listdir(path)
-            for filename in filenames:
-                label = self.labelImage(filename)
-                img = Image.open(path + "/" + filename)
-                img = img.convert("L")  # grayscale
-                img = img.resize(self.imageSize, Image.ANTIALIAS)
-                self.test_data.append([np.array(img), label, brand])
+            for filename in listdir(path):
+                self.test_data.append(self.create_np_info(filename, path, brand))
 
         np.random.shuffle(self.test_data)
         np.save("./npy_data/test_whole_data.npy", self.test_data)
 
     def run_network(self):
         model = self.create_model()
-        X, Y, test_x, test_y = self.reshape_images()
-        history = model.fit(X, Y, epochs=10,
-                            validation_data=(test_x, test_y))
+        images, targets, test_images, test_targets = self.reshape_images()
+        history = model.fit(images, targets, epochs=10,
+                            validation_data=(test_images, test_targets))
 
         plt.plot(history.history['accuracy'], label='accuracy')
         plt.plot(history.history['val_accuracy'], label='val_accuracy')
@@ -88,37 +85,29 @@ class CNN:
         plt.ylim([0.5, 1])
         plt.legend(loc='lower right')
 
-        test_loss, test_acc = model.evaluate(test_x, test_y, verbose=2)
+        test_loss, test_acc = model.evaluate(test_images, test_targets, verbose=2)
         print("Test loss: " + str(test_loss))
         print("Test accuracy: " + str(test_acc))
 
     def create_model(self):
         layers = tf.keras.layers
+        dropout_rate = 0.2
 
         model = tf.keras.models.Sequential()
-        print(self.imageSize)
         model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
         model.add(layers.MaxPooling2D((3, 3)))
-        model.add(layers.BatchNormalization())
+        # model.add(layers.BatchNormalization())
 
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        model.add(layers.BatchNormalization())
+        # model.add(layers.BatchNormalization())
+        # model.add(layers.Dense(self.num_brands, activation='softmax'))
         model.add(layers.MaxPooling2D((2, 2)))
-
-        model.add(layers.Dropout(0.2))
-        model.add(layers.Dense(self.num_brands, activation='softmax'))
-
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D((2, 2)))
-        model.add(layers.BatchNormalization())
-
-        model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D((2, 2)))
-        model.add(layers.BatchNormalization())
+        # model.add(layers.BatchNormalization())
 
         model.add(layers.Flatten())
         model.add(layers.Dense(128, activation='relu'))
-        model.add(layers.Dropout(0.2))
+        model.add(layers.Dropout(dropout_rate))
 
         model.add(layers.Dense(len(self.labels), activation='softmax'))
         model.summary()

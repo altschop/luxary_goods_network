@@ -7,7 +7,6 @@ known_brands = ["adidas", "air jordan", "new balance", "human made", "jordan", "
 def label_brand(query):
     for i in range(len(known_brands)):
         if query.lower().find(known_brands[i]) != -1:
-            print(known_brands[i])
             return i
 
     return -1

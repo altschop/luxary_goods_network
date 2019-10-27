@@ -37,18 +37,18 @@ class GoogleScraper:
             print()  # do nothing
 
         try:
-            filenames = listdir(train_path).copy()
+            file_names = listdir(train_path).copy()
         except FileNotFoundError:
             return
 
-        numToPick = int(len(filenames) * self.percent_test)
-        random.shuffle(filenames)
-        numPicked = 0
+        num_to_pick = int(len(file_names) * self.percent_test)
+        random.shuffle(file_names)
+        num_picked = 0
 
-        while numPicked < numToPick:
-            name = filenames[numPicked]
+        while num_picked < num_to_pick:
+            name = file_names[num_picked]
             shutil.move("." + self.train_data_dir + query + "/" + name, "." + self.test_data_dir + query + "/" + name)
-            numPicked += 1
+            num_picked += 1
 
     def download_images(self, query, elements, count):
         print(query)
@@ -82,7 +82,7 @@ class GoogleScraper:
 
         self.move_random_images_to_test(query, train_path)
 
-    def scrape_images(self, queries, countPerQuery=100):
+    def scrape_images(self, queries, num_images_per_query=100):
         if len(queries) < 1:
             return None
 
@@ -99,10 +99,10 @@ class GoogleScraper:
         while numQuery < len(queries):
             imgs = browser.find_elements_by_tag_name("img")
             print(len(imgs))
-            self.download_images(queries[numQuery], imgs, countPerQuery)
+            self.download_images(queries[numQuery], imgs, num_images_per_query)
 
             try:
-                nextSearch = browser.find_element_by_xpath("//*[@id=\"sbtc\"]/div/div[2]/input")
+                next_search = browser.find_element_by_xpath("//*[@id=\"sbtc\"]/div/div[2]/input")
             except NoSuchElementException:
                 break
 
@@ -110,8 +110,8 @@ class GoogleScraper:
             if numQuery == len(queries):
                 break
 
-            nextSearch.clear()
-            nextSearch.send_keys(queries[numQuery])
-            nextSearch.send_keys(Keys.ENTER)
+            next_search.clear()
+            next_search.send_keys(queries[numQuery])
+            next_search.send_keys(Keys.ENTER)
 
         browser.close()
