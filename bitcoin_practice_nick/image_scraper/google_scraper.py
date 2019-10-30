@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from PIL import Image
 import urllib.request
+import urllib.error
 import shutil
 import os
 from os import listdir
@@ -67,7 +68,10 @@ class GoogleScraper:
             if src is None:
                 continue
             filename = query + "_" + str(cnt) + ".jpg"
-            urllib.request.urlretrieve(src, filename)
+            try:
+                urllib.request.urlretrieve(src, filename)
+            except urllib.error.URLError:
+                continue
 
             try:
                 img = Image.open(filename)

@@ -23,10 +23,6 @@ def get_twitter_analysis_map():
 
 
 def get_and_collect_shoes(num_shoes):
-    shutil.rmtree("./train_data")
-    shutil.rmtree("./test_data")
-    shutil.rmtree("./npy_data")
-
     shoe_info_scraper = ShoeInfoScraper()
     shoes = shoe_info_scraper.get_shoe_infos(num_shoes)
     shoe_names = [shoe.name for shoe in shoes]
@@ -34,7 +30,7 @@ def get_and_collect_shoes(num_shoes):
     print(shoe_names)
 
     image_scraper = GoogleScraper()
-    image_scraper.scrape_images(shoe_names, 200)
+    image_scraper.scrape_images(shoe_names, 400)
     return shoe_names
 
 
@@ -43,10 +39,17 @@ def run_network(shoe_names):
     network.run_network()
 
 
+def clear_data():
+    shutil.rmtree("./train_data")
+    shutil.rmtree("./test_data")
+    shutil.rmtree("./npy_data")
+
+
 def main():
-    # shoe_names = get_and_collect_shoes(100)
+    # clear_data()
+    # shoe_names = get_and_collect_shoes(1000)
     shoe_names = get_current_shoes_loaded()
-    # print(len(shoe_names))
+    print(len(shoe_names))
     run_network(shoe_names)
 
 

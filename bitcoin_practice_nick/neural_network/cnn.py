@@ -7,7 +7,7 @@ from PIL import Image
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from neural_network.image_processor import label_brand, known_brands
+import neural_network.image_processor as detailing
 
 
 class CNN:
@@ -28,10 +28,10 @@ class CNN:
         except OSError:
             print("Could not create npy_data folder")  # do nothing
 
-        self.create_training_data()
-        self.create_testing_data()
+        # self.create_training_data()
+        # self.create_testing_data()
 
-    def labelImage(self, filename):
+    def label_image(self, filename):
         label = filename[0:filename.find("_")]
         for i in range(len(self.labels)):
             if self.labels[i].find(label) != -1:
@@ -41,7 +41,7 @@ class CNN:
         # return [1 if spot.find(label) != -1 else 0 for spot in self.labels]
 
     def create_np_info(self, filename, path, brand):
-        label = self.labelImage(filename)
+        label = self.label_image(filename)
         img = Image.open(path + "/" + filename)
         img = img.convert("L")  # grayscale
         img = img.resize(self.imageSize, Image.ANTIALIAS)
@@ -50,7 +50,7 @@ class CNN:
     def create_training_data(self):
         seen_brands = []
         for query in self.labels:
-            brand = label_brand(query)
+            brand = detailing.label_brand(query)
             if brand not in seen_brands:
                 seen_brands.append(brand)
                 self.num_brands += 1
@@ -64,7 +64,7 @@ class CNN:
 
     def create_testing_data(self):
         for query in self.labels:
-            brand = label_brand(query)
+            brand = detailing.label_brand(query)
             path = self.test_data_dir + query
             for filename in listdir(path):
                 self.test_data.append(self.create_np_info(filename, path, brand))
@@ -72,11 +72,45 @@ class CNN:
         np.random.shuffle(self.test_data)
         np.save("./npy_data/test_whole_data.npy", self.test_data)
 
+    def execute_prediction(self, model, info):
+        predictions = \
+            model.predict(np.array(info[0], dtype="float16").reshape((-1, self.imageSize[0], self.imageSize[1], 1)))[0]
+        max = -10000000000000
+        prediction_num = 0
+        for i in range(len(predictions)):
+            if predictions[i] > max:
+                max = predictions[i]
+                prediction_num = i
+
+        print("Predicted: " + str(prediction_num) + " (" + self.labels[prediction_num] + ")")
+        print("Expected: " + str(info[1]) + " (" + self.labels[info[1]] + ")")
+
+    def predict_data(self, model):
+        print()
+        predictions = [["OffWhite x Air Jordan 1 ‘UNC’_18.jpg", "./test_data/OffWhite x Air Jordan 1 ‘UNC’",
+                        "air jordan"],
+                       ["adidas AlphaEdge 4D Core Black_58.jpg", "./test_data/adidas AlphaEdge 4D Core Black",
+                        "adidas"],
+                       ["adidas Y3 Runner 4D II White_102.jpg", "./test_data/adidas Y3 Runner 4D II White", "adidas"]]
+
+        for prediction in predictions:
+            info = self.create_np_info(prediction[0], prediction[1], prediction[2])
+            self.execute_prediction(model, info)
+
     def run_network(self):
-        model = self.create_model()
+        model_path = "./network_state.h5"
+        if os.path.isfile(model_path):
+            model = tf.keras.models.load_model(model_path)
+        else:
+            model = self.create_model()
+
+        self.predict_data(model)
+
         images, targets, test_images, test_targets = self.reshape_images()
-        history = model.fit(images, targets, epochs=10,
+        history = model.fit(images, targets, epochs=2,
                             validation_data=(test_images, test_targets))
+
+        # model.save("./network_state.h5")
 
         plt.plot(history.history['accuracy'], label='accuracy')
         plt.plot(history.history['val_accuracy'], label='val_accuracy')
@@ -84,6 +118,7 @@ class CNN:
         plt.ylabel('Accuracy')
         plt.ylim([0.5, 1])
         plt.legend(loc='lower right')
+        # plt.show()
 
         test_loss, test_acc = model.evaluate(test_images, test_targets, verbose=2)
         print("Test loss: " + str(test_loss))
@@ -96,17 +131,16 @@ class CNN:
         model = tf.keras.models.Sequential()
         model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
         model.add(layers.MaxPooling2D((3, 3)))
-        # model.add(layers.BatchNormalization())
+        model.add(layers.BatchNormalization())
 
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        # model.add(layers.BatchNormalization())
-        # model.add(layers.Dense(self.num_brands, activation='softmax'))
         model.add(layers.MaxPooling2D((2, 2)))
+
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        # model.add(layers.BatchNormalization())
 
         model.add(layers.Flatten())
         model.add(layers.Dense(128, activation='relu'))
+
         model.add(layers.Dropout(dropout_rate))
 
         model.add(layers.Dense(len(self.labels), activation='softmax'))
