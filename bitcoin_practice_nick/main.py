@@ -2,7 +2,6 @@ from twitter.twitter_client import TwitterClient
 from solelinks.solelink_info_scraper import ShoeInfoScraper
 from image_scraper.google_scraper import GoogleScraper
 from neural_network.cnn import CNN
-from neural_network.image_processor import *
 from os import listdir
 import shutil
 
@@ -26,8 +25,6 @@ def get_and_collect_shoes(num_shoes):
     shoe_info_scraper = ShoeInfoScraper()
     shoes = shoe_info_scraper.get_shoe_infos(num_shoes)
     shoe_names = [shoe.name for shoe in shoes]
-    print(len(shoe_names))
-    print(shoe_names)
 
     image_scraper = GoogleScraper()
     image_scraper.scrape_images(shoe_names, 400)
@@ -36,7 +33,7 @@ def get_and_collect_shoes(num_shoes):
 
 def run_network(shoe_names):
     network = CNN(shoe_names)
-    network.run_network()
+    network.run_all_networks()
 
 
 def clear_data():
@@ -56,7 +53,6 @@ def main():
 def get_current_shoes_loaded():
     shoe_names = []
     for filename in listdir("./train_data"):
-        print(filename)
         shoe_names.append(filename)
 
     return shoe_names
