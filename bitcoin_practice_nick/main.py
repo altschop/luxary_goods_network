@@ -1,8 +1,10 @@
 from twitter.twitter_client import TwitterClient
 from solelinks.solelink_info_scraper import ShoeInfoScraper
 from image_scraper.google_scraper import GoogleScraper
-from neural_network.cnn import CNN
+from neural_network.shoe_network import SCNN
+from neural_network.brand_network import BCNN
 from os import listdir
+from solecollector.solecollector_scraper import SoleLinkScraper
 import shutil
 
 
@@ -21,10 +23,9 @@ def get_twitter_analysis_map():
     return shoe_analysis_map
 
 
-def get_and_collect_shoes(num_shoes):
-    shoe_info_scraper = ShoeInfoScraper()
-    shoes = shoe_info_scraper.get_shoe_infos(num_shoes)
-    shoe_names = [shoe.name for shoe in shoes]
+def get_and_collect_shoes():
+    shoe_info_scraper = SoleLinkScraper()
+    shoe_names = shoe_info_scraper.get_shoe_names()
 
     image_scraper = GoogleScraper()
     image_scraper.scrape_images(shoe_names, 400)
@@ -32,8 +33,13 @@ def get_and_collect_shoes(num_shoes):
 
 
 def run_network(shoe_names):
-    network = CNN(shoe_names)
+    network = SCNN(shoe_names)
     network.run_all_networks()
+
+
+def run_brand_id_network(shoe_names):
+    network = BCNN(shoe_names)
+    network.run_network()
 
 
 def clear_data():
@@ -43,11 +49,10 @@ def clear_data():
 
 
 def main():
-    # clear_data()
-    # shoe_names = get_and_collect_shoes(1000)
-    shoe_names = get_current_shoes_loaded()
+    shoe_names = get_and_collect_shoes()
+    # shoe_names = get_current_shoes_loaded()
     print(len(shoe_names))
-    run_network(shoe_names)
+    # run_brand_id_network(shoe_names)
 
 
 def get_current_shoes_loaded():

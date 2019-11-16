@@ -70,7 +70,7 @@ class GoogleScraper:
             filename = query + "_" + str(cnt) + ".jpg"
             try:
                 urllib.request.urlretrieve(src, filename)
-            except urllib.error.URLError:
+            except:
                 continue
 
             try:
