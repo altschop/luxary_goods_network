@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import numpy as np
-from os import listdir
+from os import listdir, remove
 from PIL import Image
 
 import tensorflow as tf
@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import neural_network.image_processor as brand_detailing
 
 model_path = "./network_states/brand_identifier/brand_network_state.h5"
+train_np = "./npy_data/train_whole_data.npy"
+test_np = "./npy_data/test_whole_data.npy"
 
 
 class BCNN:
@@ -19,17 +21,35 @@ class BCNN:
 
         self.train_data = []
         self.test_data = []
-        self.train_data_dir = "./test_data/"
+        self.train_data_dir = "./train_data/"
         self.test_data_dir = "./test_data/"
 
-        print("Creating training data from images")
-        self.create_training_data()
+        if os.path.isfile(train_np):
+            print("Loading training data from npy")
+            self.train_data = np.load(train_np, allow_pickle=True)
+            print("Loaded training data")
+        else:
+            print("Creating training data from images")
+            self.create_training_data()
+            print("Created training  data\n")
 
-        print("Creating testing data from images")
-        self.create_testing_data()
+        if os.path.isfile(test_np):
+            print("Loading testing data from npy")
+            self.train_data = np.load(test_np, allow_pickle=True)
+            print("Loaded testing data")
+        else:
+            print("Creating testing data from images")
+            self.create_testing_data()
+            print("Created testing data\n")
 
     def create_np_info(self, filename, path, brand):
-        img = Image.open(path + "/" + filename)
+        try:
+            img = Image.open(path + "/" + filename)
+        except OSError:
+            print("removed " + filename)
+            remove(os.getcwd() + "/" + path + "/" + filename)
+            return None
+
         img = img.convert("L")  # grayscale
         img = img.resize(self.imageSize, Image.ANTIALIAS)
         return [np.array(img), brand]
@@ -37,22 +57,32 @@ class BCNN:
     def create_training_data(self):
         for query in self.shoe_names:
             brand_label = brand_detailing.label_brand(query)
+            if brand_label == -1:
+                print(query)
             path = self.train_data_dir + query
             for filename in listdir(path):
-                self.train_data.append(self.create_np_info(filename, path, brand_label))
+                info = self.create_np_info(filename, path, brand_label)
+                if info is None:
+                    continue
+                else:
+                    self.train_data.append(info)
 
         np.random.shuffle(self.train_data)
-        # np.save("./npy_data/brand/train_whole_data.npy", self.train_data)
+        np.save("./npy_data/train_whole_data.npy", self.train_data)
 
     def create_testing_data(self):
         for query in self.shoe_names:
             brand_label = brand_detailing.label_brand(query)
             path = self.test_data_dir + query
             for filename in listdir(path):
-                self.test_data.append(self.create_np_info(filename, path, brand_label))
+                info = self.create_np_info(filename, path, brand_label)
+                if info is None:
+                    continue
+                else:
+                    self.test_data.append(info)
 
         np.random.shuffle(self.test_data)
-        # np.save("./npy_data/test_whole_data.npy", self.test_data)
+        np.save("./npy_data/test_whole_data.npy", self.test_data)
 
     def run_network(self):
         num_epochs = 45

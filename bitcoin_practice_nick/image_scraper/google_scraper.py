@@ -1,5 +1,6 @@
 import urllib
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from PIL import Image
@@ -56,12 +57,16 @@ class GoogleScraper:
         train_path = os.getcwd() + self.train_data_dir + query
         try:
             os.mkdir(train_path)
-        except OSError:
-            print()  # do nothing
+        except OSError as e:
+            if str(e).find("Cannot create a file when that file already exists") != -1:
+                print("folder already exists for: " + query)
+                return
+
+            print(str(e))
+            print("Error making dir for " + query + "\n")  # do nothing
 
         for cnt in range(count):
             if cnt >= len(elements):
-                self.move_random_images_to_test(query, train_path)
                 return
 
             src = elements[cnt].get_attribute('src')
@@ -84,9 +89,7 @@ class GoogleScraper:
             except OSError:
                 os.remove(filename)
 
-        self.move_random_images_to_test(query, train_path)
-
-    def scrape_images(self, queries, num_images_per_query=100):
+    def scrape_images(self, queries, num_images_per_query=400):
         if len(queries) < 1:
             return None
 
@@ -101,21 +104,28 @@ class GoogleScraper:
 
         numQuery = 0
         while numQuery < len(queries):
-            imgs = browser.find_elements_by_tag_name("img")
-            print(len(imgs))
-            self.download_images(queries[numQuery], imgs, num_images_per_query)
-
             try:
+                imgs = browser.find_elements_by_tag_name("img")
+                print(len(imgs))
+                self.download_images(queries[numQuery], imgs, num_images_per_query)
+
+                try:
+                    next_search = browser.find_element_by_xpath("//*[@id=\"sbtc\"]/div/div[2]/input")
+                except NoSuchElementException:
+                    break
+
+                numQuery += 1
+                if numQuery == len(queries):
+                    break
+
+                next_search.clear()
+                next_search.send_keys(queries[numQuery])
+                next_search.send_keys(Keys.ENTER)
+            except TimeoutException:
+                browser = webdriver.Chrome(executable_path="./chromedriver.exe")
+                browser.get(self.link)
                 next_search = browser.find_element_by_xpath("//*[@id=\"sbtc\"]/div/div[2]/input")
-            except NoSuchElementException:
-                break
-
-            numQuery += 1
-            if numQuery == len(queries):
-                break
-
-            next_search.clear()
-            next_search.send_keys(queries[numQuery])
-            next_search.send_keys(Keys.ENTER)
+                next_search.send_keys(queries[numQuery])
+                next_search.send_keys(Keys.ENTER)
 
         browser.close()

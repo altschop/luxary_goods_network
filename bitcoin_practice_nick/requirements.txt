@@ -7,3 +7,4 @@ Pillow
 numpy
 tensorflow
 matplotlib
+google_images_download

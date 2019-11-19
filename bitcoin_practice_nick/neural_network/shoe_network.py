@@ -171,7 +171,7 @@ class SCNN:
         dropout_rate = 0.2
 
         model = tf.keras.models.Sequential()
-        model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 3)))
+        model.add(layers.Conv2D(64, (4, 4), activation='relu', input_shape=(self.imageSize[0], self.imageSize[1], 1)))
         model.add(layers.MaxPooling2D((3, 3)))
         # model.add(layers.BatchNormalization())
 
@@ -198,12 +198,12 @@ class SCNN:
         # training input tensor
         print(len(train_data[0][0]))
         print(len(self.train_data[0][0]))
-        x_inputs = np.array([i[0] for i in train_data]).reshape((-1, self.imageSize[0], self.imageSize[1], 3))
+        x_inputs = np.array([i[0] for i in train_data]).reshape((-1, self.imageSize[0], self.imageSize[1], 1))
         # expected output
         y_train_targets = np.array([i[1] for i in train_data])
 
         # testing input tensor
-        x_test = np.array([i[0] for i in test_data]).reshape((-1, self.imageSize[0], self.imageSize[1], 3))
+        x_test = np.array([i[0] for i in test_data]).reshape((-1, self.imageSize[0], self.imageSize[1], 1))
         # expected output
         y_test_targets = np.array([i[1] for i in test_data])
 

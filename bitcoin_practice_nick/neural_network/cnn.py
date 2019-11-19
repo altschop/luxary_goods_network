@@ -45,7 +45,7 @@ def predict_shoe(img_path, brand):
     arr_img = np.array(img)
 
     predictions = model.predict(np.array(arr_img, dtype="float16")
-                                .reshape((-1, 120, 120, 3)))[0]
+                                .reshape((-1, 120, 120, 1)))[0]
 
     map_file = open(brand_shoe_map_path, "rb")
     brand_shoe_map = pickle.load(map_file)
